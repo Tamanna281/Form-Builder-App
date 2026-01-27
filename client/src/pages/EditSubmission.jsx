@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../services/api"; 
 
 const EditSubmission = () => {
   const { submissionId } = useParams();
@@ -14,21 +14,17 @@ const EditSubmission = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem("token");
-
         // Get submission
-        const subRes = await axios.get(
-          `http://localhost:5000/api/submissions/${submissionId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
+        const subRes = await api.get(
+          `/api/submissions/${submissionId}`
         );
 
         setSubmission(subRes.data);
         setValues(subRes.data.values);
 
         // Get form schema
-        const formRes = await axios.get(
-          `http://localhost:5000/api/forms/${subRes.data.formId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
+        const formRes = await api.get(
+          `/api/forms/${subRes.data.formId}`
         );
 
         setForm(formRes.data);
@@ -49,17 +45,15 @@ const EditSubmission = () => {
 
   const handleSave = async () => {
     try {
-      const token = localStorage.getItem("token");
-
-      await axios.put(
-        `http://localhost:5000/api/submissions/${submissionId}`,
-        { values },
-        { headers: { Authorization: `Bearer ${token}` } }
+      await api.put(
+        `/api/submissions/${submissionId}`,
+        { values }
       );
 
       alert("Revision saved");
       navigate(-1);
-    } catch {
+    } catch (err) {
+      console.error(err);
       alert("Failed to save changes");
     }
   };
@@ -74,7 +68,6 @@ const EditSubmission = () => {
       {form.fields.map((field) => (
         <div key={field.id} style={{ marginBottom: "15px" }}>
           <label>{field.label}</label>
-
           <input
             value={values[field.id] || ""}
             onChange={(e) =>

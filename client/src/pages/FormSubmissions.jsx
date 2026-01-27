@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../services/api";
 
 const FormSubmissions = () => {
   const { id: formId } = useParams();
@@ -15,21 +15,15 @@ const FormSubmissions = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem("token");
-
-        const formRes = await axios.get(
-          `http://localhost:5000/api/forms/${formId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-
-        const submissionsRes = await axios.get(
-          `http://localhost:5000/api/forms/${formId}/submissions`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        const [formRes, submissionsRes] = await Promise.all([
+          api.get(`/api/forms/${formId}`),
+          api.get(`/api/forms/${formId}/submissions`),
+        ]);
 
         setForm(formRes.data);
         setSubmissions(submissionsRes.data);
-      } catch {
+      } catch (err) {
+        console.error(err);
         setError("Failed to load submissions");
       } finally {
         setLoading(false);
@@ -39,7 +33,7 @@ const FormSubmissions = () => {
     fetchData();
   }, [formId]);
 
-  /*  STATES  */
+  /* STATES */
 
   if (loading) {
     return <p className="text-slate-400">Loading submissions…</p>;
@@ -55,7 +49,7 @@ const FormSubmissions = () => {
 
   if (!form) return null;
 
-  /*  UI  */
+  /* UI */
 
   return (
     <div className="mx-auto max-w-7xl px-6 py-10">
@@ -124,7 +118,7 @@ const FormSubmissions = () => {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        window.location.href = `/forms/${form._id}/fill`;
+                        navigate(`/forms/${form._id}/fill`);
                       }}
                       className="rounded-lg bg-slate-800 px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-700"
                     >
@@ -138,7 +132,7 @@ const FormSubmissions = () => {
         </div>
       )}
 
-      {/*  PREVIEW PANEL  */}
+      {/* PREVIEW PANEL */}
       {selected && (
         <div
           className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"

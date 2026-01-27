@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../services/api";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -15,17 +15,18 @@ export default function Register() {
     setError("");
 
     try {
-      await axios.post("http://localhost:5000/api/auth/register", {
+      await api.post("/api/auth/register", {
         name,
         email,
         password,
       });
 
-      // REAL navigation, not fake callbacks
       navigate("/login");
     } catch (err) {
-      console.error("REGISTER ERROR:", err.response?.data);
-      setError(err.response?.data?.message || "Registration failed");
+      console.error("REGISTER ERROR:", err);
+      setError(
+        err.response?.data?.message || "Registration failed"
+      );
     }
   };
 
@@ -46,7 +47,7 @@ export default function Register() {
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:ring-2 focus:ring-blue-500"
           />
 
           <input
@@ -55,7 +56,7 @@ export default function Register() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:ring-2 focus:ring-blue-500"
           />
 
           <input
@@ -64,7 +65,7 @@ export default function Register() {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-white focus:ring-2 focus:ring-blue-500"
           />
 
           {error && (
@@ -75,7 +76,7 @@ export default function Register() {
 
           <button
             type="submit"
-            className="w-full rounded-lg bg-blue-600 py-2 text-sm font-medium text-white hover:bg-blue-500 transition"
+            className="w-full rounded-lg bg-blue-600 py-2 text-sm font-medium text-white hover:bg-blue-500"
           >
             Create Account
           </button>
@@ -90,7 +91,6 @@ export default function Register() {
             Login
           </span>
         </p>
-
       </div>
     </div>
   );

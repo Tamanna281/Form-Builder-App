@@ -1,11 +1,8 @@
-import axios from "axios";
-
-const API = axios.create({
-  baseURL: "http://localhost:5000/api/auth",
-});
+// client/src/services/authApi.js
+import api from "./api";
 
 export const registerUser = (data) =>
-  API.post("/register", data);
+  api.post("/api/auth/register", data);
 
 export const loginUser = (data) =>
-  API.post("/login", data);
+  api.post("/api/auth/login", data);

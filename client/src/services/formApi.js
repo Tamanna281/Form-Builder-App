@@ -1,18 +1,14 @@
-import axios from "axios";
+// client/src/services/formApi.js
+import api from "./api";
 
-const API = axios.create({
-  baseURL: "http://localhost:5000/api/forms",
-});
+export const saveForm = (form) =>
+  api.post("/api/forms", form);
 
-API.interceptors.request.use((req) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    req.headers.Authorization = `Bearer ${token}`;
-  }
-  return req;
-});
+export const getForms = () =>
+  api.get("/api/forms");
 
-export const saveForm = (form) => API.post("/", form);
-export const getForms = () => API.get("/");
-export const updateForm = (id, form) => API.put(`/${id}`, form);
-export const deleteForm = (id) => API.delete(`/${id}`);
+export const updateForm = (id, form) =>
+  api.put(`/api/forms/${id}`, form);
+
+export const deleteForm = (id) =>
+  api.delete(`/api/forms/${id}`);
