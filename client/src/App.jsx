@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+// client\src\App.jsx
+import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "./pages/login";
 import Register from "./pages/register";
@@ -16,13 +17,11 @@ const PrivateRoute = ({ children }) => {
 
 function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
-        {/* PUBLIC */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* PROTECTED */}
         <Route
           path="/"
           element={
@@ -51,15 +50,6 @@ function App() {
         />
 
         <Route
-          path="/submissions/:submissionId/edit"
-          element={
-            <PrivateRoute>
-              <EditSubmission />
-            </PrivateRoute>
-          }
-        />
-
-        <Route
           path="/forms/:id/fill"
           element={
             <PrivateRoute>
@@ -68,11 +58,20 @@ function App() {
           }
         />
 
-        {/* FALLBACK */}
+        <Route
+          path="/submissions/:submissionId/edit"
+          element={
+            <PrivateRoute>
+              <EditSubmission />
+            </PrivateRoute>
+          }
+        />
+
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
+
 
 export default App;
