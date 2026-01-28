@@ -16,8 +16,8 @@ const FormSubmissions = () => {
     const fetchData = async () => {
       try {
         const [formRes, submissionsRes] = await Promise.all([
-          api.get(`/api/forms/${formId}`),
-          api.get(`/api/forms/${formId}/submissions`),
+          api.get(`/forms/${formId}`),
+          api.get(`/forms/${formId}/submissions`),
         ]);
 
         setForm(formRes.data);
