@@ -15,11 +15,22 @@ export default function Login() {
 
     try {
       const res = await loginUser({ email, password });
+
+      // 🔐 Save token
       localStorage.setItem("token", res.data.token);
-      navigate("/builder");
+
+      // Optional: save user
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+
+      // 🚀 Redirect after login
+      navigate("/dashboard");
     } catch (err) {
-      console.error("LOGIN ERROR:", err.response?.data);
-      setError(err.response?.data?.message || "Invalid email or password");
+      console.error("LOGIN FAILED:", err.response?.data);
+
+      setError(
+        err.response?.data?.message ||
+          "Login failed. Please try again."
+      );
     }
   };
 
@@ -53,7 +64,7 @@ export default function Login() {
 
           <button
             type="submit"
-            className="w-full rounded-lg bg-blue-600 py-2 text-white"
+            className="w-full rounded-lg bg-blue-600 py-2 text-white hover:bg-blue-700"
           >
             Login
           </button>
@@ -68,7 +79,6 @@ export default function Login() {
             Create one
           </span>
         </p>
-
       </div>
     </div>
   );
