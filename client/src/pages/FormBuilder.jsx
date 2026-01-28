@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { saveForm, getForms, updateForm, deleteForm } from "../services/formApi";
 import Sidebar from "../components/Sidebar";
 
@@ -129,6 +130,7 @@ const Canvas = ({ fields, setFields }) => {
    MAIN BUILDER
  */
 const FormBuilder = () => {
+  const navigate = useNavigate();
   const [formName, setFormName] = useState("");
   const [fields, setFields] = useState([]);
   const [savedForms, setSavedForms] = useState([]);
@@ -282,7 +284,7 @@ const FormBuilder = () => {
                 <div className="mt-3 flex flex-wrap gap-2">
                   <button
                     onClick={() =>
-                      (window.location.href = `/forms/${form._id}/edit`)
+                      navigate(`/forms/${form._id}/edit`)
                     }
                     className="rounded-md bg-slate-800 px-3 py-1 text-xs text-slate-200"
                   >
@@ -291,7 +293,7 @@ const FormBuilder = () => {
 
                   <button
                     onClick={() =>
-                      (window.location.href = `/forms/${form._id}/fill`)
+                      navigate(`/forms/${form._id}/fill`)
                     }
                     className="rounded-md bg-slate-800 px-3 py-1 text-xs text-slate-200"
                   >
@@ -300,7 +302,7 @@ const FormBuilder = () => {
 
                   <button
                     onClick={() =>
-                      (window.location.href = `/forms/${form._id}/submissions`)
+                      navigate(`/forms/${form._id}/submissions`)
                     }
                     className="rounded-md bg-blue-600 px-3 py-1 text-xs text-white"
                   >

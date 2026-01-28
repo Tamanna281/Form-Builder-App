@@ -2,13 +2,13 @@
 import api from "./api";
 
 export const saveForm = (form) =>
-  api.post("/forms", form);
+  api.post("/api/forms", form);
 
 export const getForms = () =>
-  api.get("/forms");
+  api.get("/api/forms");
 
 export const updateForm = (id, form) =>
-  api.put(`/forms/${id}`, form);
+  api.put(`/api/forms/${id}`, form);
 
 export const deleteForm = (id) =>
-  api.delete(`/forms/${id}`);
+  api.delete(`/api/forms/${id}`);

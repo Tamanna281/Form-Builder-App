@@ -12,7 +12,7 @@ const FormEditor = () => {
   useEffect(() => {
     const fetchForm = async () => {
       try {
-        const res = await api.get(`/forms/${id}`);
+        const res = await api.get(`/api/forms/${id}`);
         setForm(res.data);
       } catch (err) {
         console.error(err);
@@ -34,7 +34,7 @@ const FormEditor = () => {
 
   const handleSave = async () => {
     try {
-      await api.put(`/forms/${id}`, {
+      await api.put(`/api/forms/${id}`, {
         name: form.name,
         fields: form.fields,
       });

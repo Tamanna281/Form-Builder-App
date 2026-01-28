@@ -16,7 +16,7 @@ const FormFill = () => {
   useEffect(() => {
     const fetchForm = async () => {
       try {
-        const res = await api.get(`/forms/${formId}`);
+        const res = await api.get(`/api/forms/${formId}`);
 
         setForm(res.data);
 
@@ -55,7 +55,7 @@ const FormFill = () => {
       setSubmitting(true);
 
       await api.post(
-        `/forms/${formId}/submissions`,
+        `/api/forms/${formId}/submissions`,
         { values }
       );
 
