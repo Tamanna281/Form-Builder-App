@@ -1,3 +1,4 @@
+// server\models\SubmissionRevision.js
 const mongoose = require("mongoose");
 
 const submissionRevisionSchema = new mongoose.Schema(

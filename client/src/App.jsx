@@ -1,4 +1,3 @@
-// client\src\App.jsx
 import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "./pages/login";
@@ -9,7 +8,7 @@ import FormSubmissions from "./pages/FormSubmissions";
 import FormFill from "./pages/FormFill";
 import EditSubmission from "./pages/EditSubmission";
 
-// Simple auth guard
+// Auth Guard
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem("token");
   return token ? children : <Navigate to="/login" />;
@@ -22,6 +21,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
+        {/* Both / and /dashboard point to the main Dashboard (FormBuilder) */}
         <Route
           path="/"
           element={
@@ -30,7 +30,17 @@ function App() {
             </PrivateRoute>
           }
         />
+        
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute>
+              <FormBuilder />
+            </PrivateRoute>
+          }
+        />
 
+        {/* Form Routes */}
         <Route
           path="/forms/:id/edit"
           element={
@@ -40,6 +50,7 @@ function App() {
           }
         />
 
+        {/* Works for both Admin (All Data) and User (Own Data) */}
         <Route
           path="/forms/:id/submissions"
           element={
@@ -72,6 +83,5 @@ function App() {
     </HashRouter>
   );
 }
-
 
 export default App;

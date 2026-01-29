@@ -11,9 +11,8 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-/* 
-   SORTABLE FIELD
- */
+// --- COMPONENTS ---
+
 const SortableField = ({ field, setFields }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: field.id });
@@ -86,9 +85,6 @@ const SortableField = ({ field, setFields }) => {
   );
 };
 
-/* 
-   CANVAS
- */
 const Canvas = ({ fields, setFields }) => {
   const { setNodeRef, isOver } = useDroppable({ id: "canvas" });
 
@@ -126,26 +122,40 @@ const Canvas = ({ fields, setFields }) => {
   );
 };
 
-/* 
-   MAIN BUILDER
- */
+// --- MAIN PAGE ---
+
 const FormBuilder = () => {
   const navigate = useNavigate();
+  
+  // State
+  const [user, setUser] = useState(null);
   const [formName, setFormName] = useState("");
   const [fields, setFields] = useState([]);
   const [savedForms, setSavedForms] = useState([]);
   const [editingFormId, setEditingFormId] = useState(null);
   const [previewForm, setPreviewForm] = useState(null);
 
+  // Initialize
   useEffect(() => {
+    // 1. Load User
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+
+    // 2. Fetch Forms (Backend handles filtering based on role)
     fetchForms();
   }, []);
 
   const fetchForms = async () => {
-    const res = await getForms();
-    setSavedForms(
-      res.data.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
-    );
+    try {
+      const res = await getForms();
+      setSavedForms(
+        res.data.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+      );
+    } catch (err) {
+      console.error("Failed to load forms", err);
+    }
   };
 
   const handleSave = async () => {
@@ -158,9 +168,12 @@ const FormBuilder = () => {
     }
 
     fetchForms();
+    resetBuilder();
   };
 
   const loadForm = (form) => {
+    // Only Admins can load form into Builder
+    if (user?.role !== 'admin') return; 
     setFormName(form.name);
     setFields(form.fields);
     setEditingFormId(form._id);
@@ -178,6 +191,61 @@ const FormBuilder = () => {
     fetchForms();
   };
 
+  // --- RENDER LOGIC: USER VIEW ---
+  if (user && user.role === "user") {
+    return (
+      <div className="min-h-screen w-full bg-slate-950 p-6">
+        <div className="max-w-5xl mx-auto">
+          {/* Header */}
+          <div className="mb-8 flex justify-between items-center border-b border-slate-800 pb-4">
+            <div>
+              <h1 className="text-2xl font-bold text-white">Employee Dashboard</h1>
+              <p className="text-slate-400 text-sm">Forms assigned to you</p>
+            </div>
+            <div className="text-right">
+              <span className="text-xs text-slate-500 block">Logged in as</span>
+              <span className="text-sm font-medium text-white">{user.name}</span>
+            </div>
+          </div>
+
+          {/* Forms Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {savedForms.length === 0 ? (
+              <div className="col-span-full text-center py-12 text-slate-500 bg-slate-900/50 rounded-xl border border-dashed border-slate-800">
+                No forms available at the moment.
+              </div>
+            ) : (
+              savedForms.map((form) => (
+                <div key={form._id} className="bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition">
+                  <h3 className="text-lg font-semibold text-white mb-2">{form.name}</h3>
+                  <p className="text-xs text-slate-500 mb-6">{form.fields.length} questions</p>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={() => navigate(`/forms/${form._id}/fill`)}
+                      className="flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 transition"
+                    >
+                      <span>Fill Form</span>
+                    </button>
+                    
+                    <button
+                      onClick={() => navigate(`/forms/${form._id}/submissions`)}
+                      className="flex items-center justify-center gap-2 rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-700 transition"
+                    >
+                      <span>My History</span>
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // --- RENDER LOGIC: ADMIN VIEW ---
+  // (This keeps your existing Drag & Drop Builder)
   return (
     <DndContext
       collisionDetection={closestCenter}
@@ -185,10 +253,7 @@ const FormBuilder = () => {
         if (!over) return;
 
         // Create new field from sidebar
-        if (
-          active.id.startsWith("template-") &&
-          over.id === "canvas"
-        ) {
+        if (active.id.startsWith("template-") && over.id === "canvas") {
           const type = active.id.replace("template-", "");
           setFields((prev) => [
             ...prev,
@@ -221,13 +286,24 @@ const FormBuilder = () => {
         <Sidebar />
 
         <div className="flex-1 grid grid-cols-[1fr_380px] gap-6 p-6">
-          {/* BUILDER */}
+          {/* BUILDER AREA */}
           <div className="flex flex-col rounded-xl border border-slate-800 bg-slate-900 p-4 h-[calc(100vh-3rem)]">
+            <div className="mb-4 flex justify-between items-center">
+               <h2 className="text-sm font-bold text-slate-400 uppercase tracking-wider">
+                 {editingFormId ? "Edit Form" : "Create New Form"}
+               </h2>
+               {user?.orgCode && (
+                 <span className="text-xs bg-blue-900/30 text-blue-400 px-2 py-1 rounded border border-blue-900/50">
+                   Org Code: {user.orgCode}
+                 </span>
+               )}
+            </div>
+            
             <input
               placeholder="Form name"
               value={formName}
               onChange={(e) => setFormName(e.target.value)}
-              className="mb-4 w-full rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-white"
+              className="mb-4 w-full rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-white focus:border-blue-600 outline-none transition"
             />
 
             <Canvas fields={fields} setFields={setFields} />
@@ -235,83 +311,76 @@ const FormBuilder = () => {
             <div className="mt-4 flex gap-2 border-t border-slate-800 pt-3">
               <button
                 onClick={handleSave}
-                className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-500"
+                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500"
               >
-                {editingFormId ? "Update" : "Save"}
+                {editingFormId ? "Update Form" : "Save Form"}
               </button>
 
               <button
                 onClick={resetBuilder}
                 className="rounded-lg bg-slate-800 px-4 py-2 text-sm text-slate-200 hover:bg-slate-700"
               >
-                New
+                Reset
               </button>
 
               <button
-                onClick={() =>
-                  setPreviewForm({ name: formName, fields })
-                }
-                className="rounded-lg bg-slate-800 px-4 py-2 text-sm text-slate-200 hover:bg-slate-700"
+                onClick={() => setPreviewForm({ name: formName, fields })}
+                className="rounded-lg bg-slate-800 px-4 py-2 text-sm text-slate-200 hover:bg-slate-700 ml-auto"
               >
                 Preview
               </button>
             </div>
           </div>
 
-          {/* SAVED FORMS */}
+          {/* SAVED FORMS LIST (ADMIN VIEW) */}
           <div className="h-[calc(100vh-3rem)] overflow-y-auto rounded-xl border border-slate-800 bg-slate-900 p-4">
             <h3 className="mb-4 text-sm font-semibold text-slate-200">
-              Saved Forms
+              Your Forms
             </h3>
+
+            {savedForms.length === 0 && (
+               <p className="text-sm text-slate-500 italic">No forms created yet.</p>
+            )}
 
             {savedForms.map((form) => (
               <div
                 key={form._id}
-                className="mb-4 rounded-lg border border-slate-800 bg-slate-950 p-3"
+                className={`mb-4 rounded-lg border p-3 transition-colors ${
+                  editingFormId === form._id 
+                    ? "border-blue-500 bg-blue-500/10" 
+                    : "border-slate-800 bg-slate-950 hover:border-slate-700"
+                }`}
               >
                 <div
                   onClick={() => loadForm(form)}
-                  className="cursor-pointer"
+                  className="cursor-pointer mb-3"
                 >
                   <h4 className="text-sm font-medium text-white">
                     {form.name}
                   </h4>
                   <span className="text-xs text-slate-400">
-                    {form.fields.length} fields
+                    {form.fields.length} fields • {new Date(form.updatedAt).toLocaleDateString()}
                   </span>
                 </div>
 
-                <div className="mt-3 flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2">
                   <button
-                    onClick={() =>
-                      navigate(`/forms/${form._id}/edit`)
-                    }
-                    className="rounded-md bg-slate-800 px-3 py-1 text-xs text-slate-200"
+                    onClick={() => loadForm(form)}
+                    className="rounded bg-slate-800 px-2 py-1 text-xs text-slate-300 hover:bg-slate-700"
                   >
                     Edit
                   </button>
 
                   <button
-                    onClick={() =>
-                      navigate(`/forms/${form._id}/fill`)
-                    }
-                    className="rounded-md bg-slate-800 px-3 py-1 text-xs text-slate-200"
+                    onClick={() => navigate(`/forms/${form._id}/submissions`)}
+                    className="rounded bg-emerald-600/20 border border-emerald-600/30 px-2 py-1 text-xs text-emerald-400 hover:bg-emerald-600/30"
                   >
-                    Fill
-                  </button>
-
-                  <button
-                    onClick={() =>
-                      navigate(`/forms/${form._id}/submissions`)
-                    }
-                    className="rounded-md bg-blue-600 px-3 py-1 text-xs text-white"
-                  >
-                    Submissions
+                    Data
                   </button>
 
                   <button
                     onClick={() => handleDelete(form._id)}
-                    className="rounded-md bg-red-500 px-3 py-1 text-xs text-white"
+                    className="rounded bg-red-500/10 border border-red-500/20 px-2 py-1 text-xs text-red-400 hover:bg-red-500/20 ml-auto"
                   >
                     Delete
                   </button>
@@ -325,38 +394,30 @@ const FormBuilder = () => {
         {previewForm && (
           <div
             onClick={() => setPreviewForm(null)}
-            className="fixed inset-0 z-50 flex justify-end bg-black/60"
+            className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm"
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              className="h-full w-[420px] bg-slate-900 p-4 overflow-y-auto"
+              className="h-full w-[420px] bg-slate-900 border-l border-slate-800 p-6 overflow-y-auto shadow-2xl"
             >
-              <div className="mb-4 flex justify-between items-center">
-                <h3 className="text-sm font-semibold text-white">
-                  Form Preview
-                </h3>
-                <button
-                  onClick={() => setPreviewForm(null)}
-                  className="text-slate-400"
-                >
-                  ✕
-                </button>
+              <div className="mb-6 flex justify-between items-center">
+                <h3 className="text-lg font-bold text-white">Preview</h3>
+                <button onClick={() => setPreviewForm(null)} className="text-slate-400 hover:text-white">✕</button>
               </div>
 
-              <p className="mb-4 text-sm text-slate-400">
-                <strong>{previewForm.name}</strong>
-              </p>
+              <div className="space-y-6">
+                 <div>
+                    <h2 className="text-xl font-bold text-white mb-2">{previewForm.name || "Untitled Form"}</h2>
+                    <div className="h-1 w-20 bg-blue-600 rounded-full"></div>
+                 </div>
 
-              <div className="space-y-4">
                 {previewForm.fields.map((field) => (
-                  <div key={field.id}>
-                    <span className="text-xs text-slate-400">
-                      {field.label}
-                    </span>
-                    <div className="mt-1 rounded-md border border-slate-800 bg-slate-950 p-2 text-sm text-slate-500">
-                      {field.type === "email" && "example@email.com"}
-                      {field.type === "text" && "Sample text"}
-                      {field.type === "textarea" && "Sample long text"}
+                  <div key={field.id} className="space-y-2">
+                    <label className="text-sm font-medium text-slate-300">
+                      {field.label} {field.required && <span className="text-red-400">*</span>}
+                    </label>
+                    <div className="w-full rounded-lg border border-slate-700 bg-slate-800/50 px-3 py-2 text-sm text-slate-500 italic">
+                      {field.type} input placeholder...
                     </div>
                   </div>
                 ))}

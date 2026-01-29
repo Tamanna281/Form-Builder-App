@@ -1,4 +1,3 @@
-// mern-auth-app\server\server.js
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -42,7 +41,6 @@ mongoose
   });
 
 // routes
-// test route (VERY IMPORTANT for debugging)
 app.get("/", (req, res) => {
   res.status(200).json({
     success: true,
@@ -50,7 +48,9 @@ app.get("/", (req, res) => {
   });
 });
 
-app.use("/auth", require("./routes/authRoutes"));
+// --- CRITICAL FIX HERE ---
+// Changed from "/auth" to "/api/auth" to match your frontend API calls
+app.use("/api/auth", require("./routes/authRoutes")); 
 app.use("/api/forms", require("./routes/formRoutes"));
 
 const PORT = process.env.PORT || 5000;
@@ -58,5 +58,3 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
-

@@ -15,12 +15,17 @@ export default function Login() {
 
     try {
       const res = await loginUser({ email, password });
+      
+      const { token, user } = res.data; 
 
       // 🔐 Save token
-      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("token", token);
 
-      // Optional: save user
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+      // Save full user object (contains role & orgCode)
+      localStorage.setItem("user", JSON.stringify(user));
+      
+      // OPTIONAL: Save role explicitly for easier access
+      localStorage.setItem("userRole", user.role);
 
       // 🚀 Redirect after login
       navigate("/dashboard");
@@ -59,7 +64,9 @@ export default function Login() {
           />
 
           {error && (
-            <div className="text-sm text-red-400">{error}</div>
+            <div className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 p-2 rounded">
+              {error}
+            </div>
           )}
 
           <button
