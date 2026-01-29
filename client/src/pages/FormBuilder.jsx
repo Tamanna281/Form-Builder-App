@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { saveForm, getForms, updateForm, deleteForm } from "../services/formApi";
+import {
+  saveForm,
+  getForms,
+  updateForm,
+  deleteForm,
+} from "../services/formApi";
 import Sidebar from "../components/Sidebar"; // Import Sidebar
 
 import { DndContext, closestCenter, useDroppable } from "@dnd-kit/core";
@@ -37,17 +42,15 @@ const SortableField = ({ field, setFields }) => {
       </div>
 
       <div className="space-y-2">
-        <span className="text-xs text-slate-400 uppercase">
-          {field.type}
-        </span>
+        <span className="text-xs text-slate-400 uppercase">{field.type}</span>
 
         <input
           value={field.label}
           onChange={(e) =>
             setFields((prev) =>
               prev.map((f) =>
-                f.id === field.id ? { ...f, label: e.target.value } : f
-              )
+                f.id === field.id ? { ...f, label: e.target.value } : f,
+              ),
             )
           }
           className="w-full rounded-md border border-slate-800 bg-slate-950 px-2 py-1 text-sm text-white"
@@ -63,8 +66,8 @@ const SortableField = ({ field, setFields }) => {
                   prev.map((f) =>
                     f.id === field.id
                       ? { ...f, required: e.target.checked }
-                      : f
-                  )
+                      : f,
+                  ),
                 )
               }
             />
@@ -94,9 +97,7 @@ const Canvas = ({ fields, setFields }) => {
       className={`flex-1 overflow-y-auto rounded-xl border-2 border-dashed p-4 transition
         ${isOver ? "border-blue-500 bg-blue-500/5" : "border-slate-700"}`}
     >
-      <h3 className="mb-3 text-sm font-semibold text-slate-200">
-        Form Fields
-      </h3>
+      <h3 className="mb-3 text-sm font-semibold text-slate-200">Form Fields</h3>
 
       {fields.length === 0 && (
         <div className="rounded-lg bg-slate-800/50 p-4 text-center text-sm text-slate-400">
@@ -110,11 +111,7 @@ const Canvas = ({ fields, setFields }) => {
       >
         <div className="space-y-3">
           {fields.map((field) => (
-            <SortableField
-              key={field.id}
-              field={field}
-              setFields={setFields}
-            />
+            <SortableField key={field.id} field={field} setFields={setFields} />
           ))}
         </div>
       </SortableContext>
@@ -126,7 +123,7 @@ const Canvas = ({ fields, setFields }) => {
 
 const FormBuilder = () => {
   const navigate = useNavigate();
-  
+
   // State
   const [user, setUser] = useState(null);
   const [formName, setFormName] = useState("");
@@ -151,7 +148,7 @@ const FormBuilder = () => {
     try {
       const res = await getForms();
       setSavedForms(
-        res.data.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+        res.data.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)),
       );
     } catch (err) {
       console.error("Failed to load forms", err);
@@ -173,7 +170,7 @@ const FormBuilder = () => {
 
   const loadForm = (form) => {
     // Only Admins can load form into Builder
-    if (user?.role !== 'admin') return; 
+    if (user?.role !== "admin") return;
     setFormName(form.name);
     setFields(form.fields);
     setEditingFormId(form._id);
@@ -197,19 +194,25 @@ const FormBuilder = () => {
     return (
       <div className="min-h-screen w-full bg-slate-950 flex">
         {/* SIDEBAR ADDED HERE */}
-        <Sidebar /> 
-        
+        <Sidebar />
+
         <div className="flex-1 p-6 overflow-y-auto">
           <div className="max-w-5xl mx-auto">
             {/* Header */}
             <div className="mb-8 flex justify-between items-center border-b border-slate-800 pb-4">
               <div>
-                <h1 className="text-2xl font-bold text-white">Employee Dashboard</h1>
+                <h1 className="text-2xl font-bold text-white">
+                  Employee Dashboard
+                </h1>
                 <p className="text-slate-400 text-sm">Forms assigned to you</p>
               </div>
               <div className="text-right">
-                <span className="text-xs text-slate-500 block">Logged in as</span>
-                <span className="text-sm font-medium text-white">{user.name}</span>
+                <span className="text-xs text-slate-500 block">
+                  Logged in as
+                </span>
+                <span className="text-sm font-medium text-white">
+                  {user.name}
+                </span>
               </div>
             </div>
 
@@ -221,10 +224,17 @@ const FormBuilder = () => {
                 </div>
               ) : (
                 savedForms.map((form) => (
-                  <div key={form._id} className="bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition">
-                    <h3 className="text-lg font-semibold text-white mb-2">{form.name}</h3>
-                    <p className="text-xs text-slate-500 mb-6">{form.fields.length} questions</p>
-                    
+                  <div
+                    key={form._id}
+                    className="bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition"
+                  >
+                    <h3 className="text-lg font-semibold text-white mb-2">
+                      {form.name}
+                    </h3>
+                    <p className="text-xs text-slate-500 mb-6">
+                      {form.fields.length} questions
+                    </p>
+
                     <div className="grid grid-cols-2 gap-3">
                       <button
                         onClick={() => navigate(`/forms/${form._id}/fill`)}
@@ -232,9 +242,11 @@ const FormBuilder = () => {
                       >
                         <span>Fill Form</span>
                       </button>
-                      
+
                       <button
-                        onClick={() => navigate(`/forms/${form._id}/submissions`)}
+                        onClick={() =>
+                          navigate(`/forms/${form._id}/submissions`)
+                        }
                         className="flex items-center justify-center gap-2 rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-700 transition"
                       >
                         <span>My History</span>
@@ -294,16 +306,16 @@ const FormBuilder = () => {
           {/* BUILDER AREA */}
           <div className="flex flex-col rounded-xl border border-slate-800 bg-slate-900 p-4 h-[calc(100vh-3rem)]">
             <div className="mb-4 flex justify-between items-center">
-               <h2 className="text-sm font-bold text-slate-400 uppercase tracking-wider">
-                 {editingFormId ? "Edit Form" : "Create New Form"}
-               </h2>
-               {user?.orgCode && (
-                 <span className="text-xs bg-blue-900/30 text-blue-400 px-2 py-1 rounded border border-blue-900/50">
-                   Org Code: {user.orgCode}
-                 </span>
-               )}
+              <h2 className="text-sm font-bold text-slate-400 uppercase tracking-wider">
+                {editingFormId ? "Edit Form" : "Create New Form"}
+              </h2>
+              {user?.orgCode && (
+                <span className="text-xs bg-blue-900/30 text-blue-400 px-2 py-1 rounded border border-blue-900/50">
+                  Org Code: {user.orgCode}
+                </span>
+              )}
             </div>
-            
+
             <input
               placeholder="Form name"
               value={formName}
@@ -344,15 +356,17 @@ const FormBuilder = () => {
             </h3>
 
             {savedForms.length === 0 && (
-               <p className="text-sm text-slate-500 italic">No forms created yet.</p>
+              <p className="text-sm text-slate-500 italic">
+                No forms created yet.
+              </p>
             )}
 
             {savedForms.map((form) => (
               <div
                 key={form._id}
                 className={`mb-4 rounded-lg border p-3 transition-colors ${
-                  editingFormId === form._id 
-                    ? "border-blue-500 bg-blue-500/10" 
+                  editingFormId === form._id
+                    ? "border-blue-500 bg-blue-500/10"
                     : "border-slate-800 bg-slate-950 hover:border-slate-700"
                 }`}
               >
@@ -364,7 +378,8 @@ const FormBuilder = () => {
                     {form.name}
                   </h4>
                   <span className="text-xs text-slate-400">
-                    {form.fields.length} fields • {new Date(form.updatedAt).toLocaleDateString()}
+                    {form.fields.length} fields •{" "}
+                    {new Date(form.updatedAt).toLocaleDateString()}
                   </span>
                 </div>
 
@@ -407,19 +422,29 @@ const FormBuilder = () => {
             >
               <div className="mb-6 flex justify-between items-center">
                 <h3 className="text-lg font-bold text-white">Preview</h3>
-                <button onClick={() => setPreviewForm(null)} className="text-slate-400 hover:text-white">✕</button>
+                <button
+                  onClick={() => setPreviewForm(null)}
+                  className="text-slate-400 hover:text-white"
+                >
+                  ✕
+                </button>
               </div>
 
               <div className="space-y-6">
-                 <div>
-                    <h2 className="text-xl font-bold text-white mb-2">{previewForm.name || "Untitled Form"}</h2>
-                    <div className="h-1 w-20 bg-blue-600 rounded-full"></div>
-                 </div>
+                <div>
+                  <h2 className="text-xl font-bold text-white mb-2">
+                    {previewForm.name || "Untitled Form"}
+                  </h2>
+                  <div className="h-1 w-20 bg-blue-600 rounded-full"></div>
+                </div>
 
                 {previewForm.fields.map((field) => (
                   <div key={field.id} className="space-y-2">
                     <label className="text-sm font-medium text-slate-300">
-                      {field.label} {field.required && <span className="text-red-400">*</span>}
+                      {field.label}{" "}
+                      {field.required && (
+                        <span className="text-red-400">*</span>
+                      )}
                     </label>
                     <div className="w-full rounded-lg border border-slate-700 bg-slate-800/50 px-3 py-2 text-sm text-slate-500 italic">
                       {field.type} input placeholder...
