@@ -17,9 +17,7 @@ const EditSubmission = () => {
     const fetchData = async () => {
       try {
         // 1. Get the submission to find out which form it belongs to
-        // Note: Ensure your backend has a GET /api/submissions/:id route!
-        // If not, you might need to add it to your server/routes/formRoutes.js
-        const subRes = await api.get(`/api/submissions/${submissionId}`);
+        const subRes = await api.get(`/api/forms/submissions/${submissionId}`);
         
         setSubmission(subRes.data);
         setValues(subRes.data.values || {});
@@ -46,7 +44,7 @@ const EditSubmission = () => {
     e.preventDefault();
     setSaving(true);
     try {
-      await api.put(`/api/submissions/${submissionId}`, { values });
+      await api.put(`/api/forms/submissions/${submissionId}`, { values });
       // Go back to the previous page (Submissions List)
       navigate(-1);
     } catch (err) {

@@ -57,7 +57,7 @@ router.delete("/:id", authMiddleware, async (req, res) => {
   }
 });
 
-// --- SUBMISSIONS & DATA ---
+// --- SUBMISSIONS & DATA (Must come BEFORE /:id route to avoid conflicts) ---
 
 // SUBMIT FORM (User/Employee)
 router.post("/:formId/submissions", authMiddleware, createSubmission);
