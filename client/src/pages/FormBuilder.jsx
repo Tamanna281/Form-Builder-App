@@ -12,7 +12,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 
 // --- COMPONENTS (SortableField, Canvas) ---
-// (Keep these components exactly as they were before)
+
 const SortableField = ({ field, setFields }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: field.id });
