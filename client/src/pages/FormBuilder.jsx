@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { saveForm, getForms, updateForm, deleteForm } from "../services/formApi";
-import Sidebar from "../components/Sidebar";
+import Sidebar from "../components/Sidebar"; // Import Sidebar
 
 import { DndContext, closestCenter, useDroppable } from "@dnd-kit/core";
 import {
@@ -11,8 +11,8 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-// --- COMPONENTS ---
-
+// --- COMPONENTS (SortableField, Canvas) ---
+// (Keep these components exactly as they were before)
 const SortableField = ({ field, setFields }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: field.id });
@@ -192,52 +192,58 @@ const FormBuilder = () => {
   };
 
   // --- RENDER LOGIC: USER VIEW ---
+  // FIXED: Now wraps the dashboard in a flex container with <Sidebar />
   if (user && user.role === "user") {
     return (
-      <div className="min-h-screen w-full bg-slate-950 p-6">
-        <div className="max-w-5xl mx-auto">
-          {/* Header */}
-          <div className="mb-8 flex justify-between items-center border-b border-slate-800 pb-4">
-            <div>
-              <h1 className="text-2xl font-bold text-white">Employee Dashboard</h1>
-              <p className="text-slate-400 text-sm">Forms assigned to you</p>
-            </div>
-            <div className="text-right">
-              <span className="text-xs text-slate-500 block">Logged in as</span>
-              <span className="text-sm font-medium text-white">{user.name}</span>
-            </div>
-          </div>
-
-          {/* Forms Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {savedForms.length === 0 ? (
-              <div className="col-span-full text-center py-12 text-slate-500 bg-slate-900/50 rounded-xl border border-dashed border-slate-800">
-                No forms available at the moment.
+      <div className="min-h-screen w-full bg-slate-950 flex">
+        {/* SIDEBAR ADDED HERE */}
+        <Sidebar /> 
+        
+        <div className="flex-1 p-6 overflow-y-auto">
+          <div className="max-w-5xl mx-auto">
+            {/* Header */}
+            <div className="mb-8 flex justify-between items-center border-b border-slate-800 pb-4">
+              <div>
+                <h1 className="text-2xl font-bold text-white">Employee Dashboard</h1>
+                <p className="text-slate-400 text-sm">Forms assigned to you</p>
               </div>
-            ) : (
-              savedForms.map((form) => (
-                <div key={form._id} className="bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition">
-                  <h3 className="text-lg font-semibold text-white mb-2">{form.name}</h3>
-                  <p className="text-xs text-slate-500 mb-6">{form.fields.length} questions</p>
-                  
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      onClick={() => navigate(`/forms/${form._id}/fill`)}
-                      className="flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 transition"
-                    >
-                      <span>Fill Form</span>
-                    </button>
-                    
-                    <button
-                      onClick={() => navigate(`/forms/${form._id}/submissions`)}
-                      className="flex items-center justify-center gap-2 rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-700 transition"
-                    >
-                      <span>My History</span>
-                    </button>
-                  </div>
+              <div className="text-right">
+                <span className="text-xs text-slate-500 block">Logged in as</span>
+                <span className="text-sm font-medium text-white">{user.name}</span>
+              </div>
+            </div>
+
+            {/* Forms Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {savedForms.length === 0 ? (
+                <div className="col-span-full text-center py-12 text-slate-500 bg-slate-900/50 rounded-xl border border-dashed border-slate-800">
+                  No forms available at the moment.
                 </div>
-              ))
-            )}
+              ) : (
+                savedForms.map((form) => (
+                  <div key={form._id} className="bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition">
+                    <h3 className="text-lg font-semibold text-white mb-2">{form.name}</h3>
+                    <p className="text-xs text-slate-500 mb-6">{form.fields.length} questions</p>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        onClick={() => navigate(`/forms/${form._id}/fill`)}
+                        className="flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 transition"
+                      >
+                        <span>Fill Form</span>
+                      </button>
+                      
+                      <button
+                        onClick={() => navigate(`/forms/${form._id}/submissions`)}
+                        className="flex items-center justify-center gap-2 rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-700 transition"
+                      >
+                        <span>My History</span>
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -245,7 +251,6 @@ const FormBuilder = () => {
   }
 
   // --- RENDER LOGIC: ADMIN VIEW ---
-  // (This keeps your existing Drag & Drop Builder)
   return (
     <DndContext
       collisionDetection={closestCenter}
